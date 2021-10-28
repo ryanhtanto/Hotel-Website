@@ -1,0 +1,101 @@
+*{
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.section{
+    height: 100vh;
+    width: 100%;
+}
+.home-main{
+    background-image: url("../images/galaxy_background.jpg");
+    background-size: cover;
+}
+
+.vertical-center{
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.home-title{
+    color: white;
+}
+
+.home-desc{
+    color: rgb(196, 196, 196);
+}
+
+.home-slide1{
+    background-image: url("../images/playstation_background.jpeg");
+    background-size: cover;
+}
+
+.ps-text{
+    margin-top: 53%;
+}
+
+.btn-ps{
+    background-color: transparent;
+    border: solid white;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    transition-duration: 0.4s;
+}
+
+.btn-ps:hover{
+    background-color: white;
+    border: solid white;
+    color: black;
+}
+
+.home-slide2{
+    /* background-color: rgb(209, 43, 43); */
+    background-image: url('../images/nintendo_background.svg');
+    background-size: cover;
+}
+
+.nintendo-text{
+    margin-top: 20%;
+}
+
+.btn-nintendo{
+    background-color: transparent;
+    border: solid white;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    transition-duration: 0.4s;
+    margin-top: 15px;
+}
+
+.btn-nintendo:hover{
+    background-color: white;
+    border: solid white;
+    color: rgb(209, 43, 43);
+}
+
+.home-slide3{
+    background-image: url("../images/xbox-background.jpg");
+    background-size: cover;
+}
+
+.btn-xbox{
+    background-color: transparent;
+    border: solid white;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    transition-duration: 0.4s;
+    margin-top: 15px;
+}
+
+.btn-xbox:hover{
+    background-color: white;
+    border: solid white;
+    color: rgb(28, 122, 30);
+}
