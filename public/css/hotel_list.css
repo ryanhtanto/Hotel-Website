@@ -1,0 +1,25 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+.hotelList:hover {
+    border-color: #40b0e6;
+}
+a{
+    text-decoration:none;
+    color: black;
+}
+.icon {
+    color: #fec512;
+} 
+
+.filter-alert{
+    padding: 10px;
+    border: solid 0.5px rgb(207, 207, 207);
+    color: grey;
+}
+
+.container{
+    margin-top: 120px;
+}

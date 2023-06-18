@@ -1,13 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SignUpController;
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HotelController;
+use App\Http\Controllers\HotelDetailController;
+use App\Http\Controllers\BookingFormController;
+use App\Http\Controllers\LoginSignupController;
+use App\Http\Controllers\BookingHistoryController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ConsolesController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
-
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,41 +22,28 @@ use App\Http\Controllers\OrderController;
 |
 */
 
-//home page routes
-Route::get('/', function () {
-    return view('home', ['title'=>'Home', 'css'=>'home']);
-});
+Route::get('/', [HomeController::class, 'index']);
 
-Route::get('/home', function () {
-    return view('home', ['title'=>'Home', 'css'=>'home']);
-});
+Route::get('home', [HomeController::class, 'index']);
 
-//sign up page routes
-Route::get('/signup', [SignUpController::class, 'logged_in']);
+Route::get('hotels', [HotelController::class, 'index']);
 
-//add user to db routes
-Route::post('addUser', [SignUpController::class, 'addData']);
+Route::get('hotel_detail/{id}', [HotelDetailController::class, 'index']);
 
-//admin page routes
-Route::get('/admin', [AdminController::class, 'index']);
-Route::get('admin/console_crud/{id}', [AdminController::class, 'console_crud']);
-Route::get('admin/console_add/{id}', [AdminController::class, 'console_add_index']);
-Route::post('add_console', [AdminController::class, 'console_add']);
-Route::get('admin/console_delete/{id}', [AdminController::class, 'console_delete']);
-Route::get('admin/console_edit/{id}', [AdminController::class, 'console_edit_index']);
-Route::post('edit_console', [AdminController::class, 'console_edit']);
-Route::get('admin/customer_order', [AdminController::class, 'order_index']);
-Route::post('change_status/{id}', [AdminController::class, 'change_status'], );
-Route::get('admin/add_game', [AdminController::class, 'addgame_index']);
-Route::post('add_game', [AdminController::class, 'add_game']);
+Route::post('availability_check', [HotelDetailController::class, 'availability_check']);
 
-//login page routes
-Route::get('/login', [LoginController::class, 'logged_in']);
+Route::get('booking_form', [BookingFormController::class, 'index']);
 
-//login authentication routes
-Route::post('login_auth', [LoginController::class, 'user_auth']);
+Route::post('confirm_booking', [BookingFormController::class, 'confirm_booking']);
 
-//logout routes
+Route::get('cancel_booking', [BookingFormController::class, 'cancel_booking']);
+
+Route::get('login_signup', [LoginSignupController::class, 'index']);
+
+Route::post('addUser', [LoginSignupController::class, 'addUser']);
+
+Route::post('user_login', [LoginSignupController::class, 'user_login']);
+
 Route::get('logout', function(){
     if(session()->has('user')){
         session()->pull('user');
@@ -63,21 +52,31 @@ Route::get('logout', function(){
     return redirect('home');
 });
 
-//about us page routes
-Route::view('about_us', 'about_us', ['title'=> 'About Us', 'css'=>'about_us']);
+Route::view('about_us', 'about_us');
 
-// route for playstation
-Route::get('/console/{console_name}', [ConsolesController::class, 'index']);
-Route::get('/console_detail/{id_console}', [ConsolesController::class, 'detail']);
+Route::get('booking_history', [BookingHistoryController::class, 'index']);
 
-//route for cart
-Route::get('/cart', [CartController::class, 'index']);
-Route::post('add-to-cart', [ConsolesController::class, 'addToCart']);
-Route::get('/remove/{id}', [ConsolesController::class, 'remove']);
-Route::post('calculate_cart', [CartController::class, 'calculate_total']);
-Route::get('checkout', [CartController::class, 'checkout']);
+Route::get('admin_crud', [AdminController::class, 'index']);
 
-//route for order
-Route::get('order', [OrderController::class, 'index']);
-Route::get('req_pickup/{id}', [OrderController::class, 'pickup']);
+Route::get('delete/{id}', [AdminController::class, 'delete_hotel']);
+
+Route::get('admin_edit/{id}', [AdminController::class, 'edit_index']);
+
+Route::post('hotel_edit', [AdminController::class, 'hotel_edit']);
+
+Route::get('add_hotel_index', [AdminController::class, 'add_hotel_index']);
+
+Route::post('add_hotel', [AdminController::class, 'add_hotel']);
+
+Route::get('add_location_index', [AdminController::class, 'add_location_index']);
+
+Route::post('add_location', [AdminController::class, 'add_location']);
+
+Route::get('add_carousel_index', [AdminController::class, 'add_carousel_index']);
+
+Route::post('add_carousel', [AdminController::class, 'add_carousel']);
+
+Route::get('profile', [ProfileController::class, 'index']);
+
+Route::post('edit_profile', [ProfileController::class, 'edit_profile']);
 

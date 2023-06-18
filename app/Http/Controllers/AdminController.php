@@ -3,217 +3,152 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Console;
-use App\Models\Order;
-use App\Models\Game;
-use File;
-
+use App\Models\Hotel;
+use App\Models\Location;
+use App\Models\HotelImage;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    //admin homepage
     function index(){
-        if(!session()->has('user')){
-            return redirect('home');
-        }
         if(session('user')->role == 'admin'){
-            return view('admin.admin_home', ['title' => 'Admin Page', 'css' => 'admin']);
-        } else{
-            return redirect('home');
-        }
-    }
-
-    //admin crud page (sesudah pilih kategori)
-    function console_crud($id_category){
-        if(!session()->has('user')){
-            return redirect('home');
-        }
-        if(session('user')->role == 'admin'){
-            $consoles = Console::where('id_category', $id_category)->get();
-            if($id_category == 1){
-                $category = "Playstation";
-            } else if($id_category == 2){
-                $category = "Nintendo";
-            } else{
-                $category = "Xbox";
-            }
-            return view('admin.admin_crud', ['title' => 'Admin Crud', 'css' => 'admin_crud', 'consoles' => $consoles, 'id_category' => $id_category, 'category' => $category]);
-        } else{
-            return redirect('home');
-        }
-    }
-
-    //admin page untuk add console
-    function console_add_index($id_category){
-        if(session('user')->role == 'admin'){
-            if($id_category == 1){
-                $category = "Playstation";
-            } else if($id_category == 2){
-                $category = "Nintendo";
-            } else{
-                $category = "Xbox";
-            }
-            return view('admin.admin_add', ['title' => 'Add '.$category, 'css' => 'admin_add', 'id_category' => $id_category, 'category' => $category]);
-        } else{
-            return redirect('home');
-        }
-    }
-
-    function console_add(Request $request){
-        if(!session()->has('user')){
-            return redirect('home');
-        }
-        if(session('user')->role != 'admin'){
-            return redirect('home');
-        }
-        $request->validate([
-            'console_name' => 'required',
-            'id_category' => 'required',
-            'harga' => 'required | numeric',
-            'deskripsi' => 'required',
-            'images' => 'required',
-        ]);
-
-        if($request->id_category == 1){
-            $category = "Playstation";
-        } else if($request->id_category == 2){
-            $category = "Nintendo";
-        } else{
-            $category = "Xbox";
-        }
-
-        $console = new Console();
-
-        $console->console_name = $request->input('console_name');
-        $console->id_category = $request->input('id_category');
-        $console->harga = $request->input('harga');
-        $console->deskripsi = $request->input('deskripsi');
-        $filename = $request->file('images')->getClientOriginalName();
-        $console->images = $filename;
-        $request->file('images')->move('images/'.$category, $filename);
-        
-        $console->save();
-        
-        return back()->with('success', "Items added into database!");
-    }
-
-    //fungsi untuk delete console
-    function console_delete($id_console){
-        $console = Console::find($id_console);
-
-        if($console['id_category'] == 1){
-            $category = 'Playstation';
-        } else if($console['id_category'] == 2){
-            $category = "Nintendo";
-        } else{
-            $category = "Xbox";
-        }
-
-        if(File::exists(public_path('images/'.$category.'/'.$console['images']))){
-            File::delete(public_path('images/'.$category.'/'.$console['images']));
-        }
-
-        $console->delete();
-
-        return back()->with('delete', 'Items has been deleted');
-    }
-
-    //admin page untuk edit console
-    function console_edit_index($id_console){
-        if(!session()->has('user')){
-            return redirect('home');
-        }
-        if(session('user')->role == 'admin'){
-            $console = Console::find($id_console);
-            if($console['id_category'] == 1){
-                $category = 'Playstation';
-            } else if($console['id_category'] == 2){
-                $category = "Nintendo";
-            } else{
-                $category = "Xbox";
-            }
-            return view('admin.admin_edit', ['title'=>'Edit '.$console['console_name'], 'css'=>'admin_add', 'data_console'=>$console, 'category'=>$category]);
-        } else{
-            return redirect('home');
-        }
-    }
-
-    function console_edit(Request $request){
-        $request->validate([
-            'console_name' => 'required',
-            'id_category' => 'required',
-            'harga' => 'required | numeric',
-            'deskripsi' => 'required',
-            'images' => 'required'
-        ]);
-
-        $console = Console::find($request->id_console);
-
-        if($console['id_category'] == 1){
-            $category = 'Playstation';
-        } else if($console['id_category'] == 2){
-            $category = "Nintendo";
-        } else{
-            $category = "Xbox";
-        }
-
-        $console->console_name = $request->input('console_name');
-        $console->id_category = $request->input('id_category');
-        $console->harga = $request->input('harga');
-        $console->deskripsi = $request->input('deskripsi');
-        $filename = $request->file('images')->getClientOriginalName();
-        
-        if(File::exists(public_path('images/'.$category.'/'.$console['images']))){
-            File::delete(public_path('images/'.$category.'/'.$console['images']));
-        }
-        
-        $console->images = $filename;
-        $request->file('images')->move('images/'.$category, $filename);
-
-        $console->save();
-        
-        return back()->with('success', "Items Updated into database!");
-    }
-
-    //admin page untuk lihat order customer
-    function order_index(){
-        $orders = Order::all();
-        return view('admin.customer_order', ['title' => 'Customer Order', 'css' => 'admin_crud', 'orders' => $orders]);
-    }
-
-    function change_status(Request $request, $id){
-        $request->validate([
-            'new_status' => 'required'
-        ]);
-
-        $order = Order::find($id);
-        $order->status = $request->input('new_status');
-        $order->save();
-        return back();
-    }
-
-    //admin page untuk tambah game
-    function addgame_index(){
-        if(!session()->has('user')){
-            return redirect('home');
-        }
-        if(session('user')->role == 'admin'){
-            $consoles = Console::all();
-            return view('admin.admin_addgame', ['title' => 'Add Game', 'css' => 'admin_add', 'consoles' => $consoles]);
+            return view('admin.admin_crud');
         }
         return redirect('home');
     }
 
-    function add_game(Request $request){
-        $request->validate([
-            'id_console' => 'required',
-            'game_name' => 'required'
-        ]);
-        $games = new Game();
-        $games->id_console = $request->input('id_console');
-        $games->game_name = $request->input('game_name');
-        $games->save();
+    public function delete_hotel($id)
+    {
+        $hotel = Hotel::find($id);
+        $hotel->delete();
 
-        return back()->with('success', "Game has been successfuly added!");
+        return back()->with('delete', 'Hotel has been deleted');
+    }
+
+    public function edit_index($id)
+    {
+        if(session('user')->role == 'admin'){
+            $hotels = Hotel::find($id);
+            $location = Location::all();
+            return view('admin.admin_edit', ['hotel' => $hotels, 'location' => $location]);
+        } else{
+            return redirect('home');
+        }
+    }
+
+    public function hotel_edit(Request $request)
+    {
+        $request->validate([
+            'hotel_name' => 'required',
+            'id_location' => 'required',
+            'address' => 'required',
+            'hotel_star' => 'required',
+            'available_room' => 'required',
+            'price' => 'required | numeric',
+        ]);
+        $hotel = Hotel::find($request->id_hotel);
+        $hotel->hotel_name = $request->input('hotel_name');
+        $hotel->id_location = $request->input('id_location');
+        $hotel->address = $request->input('address');
+        $hotel->hotel_star = $request->input('hotel_star');
+        $hotel->price = $request->input('price');
+        $hotel->room_available = $request->input('available_room');
+        if(!empty($request->file('images'))){
+            $filename = $request->file('images')->getClientOriginalName();
+            $hotel->images = $filename;
+            $request->file('images')->move('images/Hotel', $filename);
+        }
+        
+        $hotel->save();
+        
+        return back()->with('success', "Hotel information has been updated!");
+    }
+
+    function add_hotel_index(){
+        if(session('user')->role == 'admin'){
+            $location = Location::all();
+            return view('admin.hotel_add', ['location' => $location]);
+        }else{
+            return redirect('home');
+        }
+    }
+
+    function add_hotel(Request $request){
+        $request->validate([
+            'hotel_name' => 'required',
+            'id_location' => 'required',
+            'address' => 'required',
+            'hotel_star' => 'required',
+            'available_room' => 'required',
+            'price' => 'numeric',
+            'images' => 'required',
+        ]);
+        $hotel = new Hotel();
+
+        $hotel->hotel_name = $request->input('hotel_name');
+        $hotel->id_location = $request->input('id_location');
+        $hotel->address = $request->input('address');
+        $hotel->hotel_star = $request->input('hotel_star');
+        $hotel->room_available = $request->input('available_room');
+        $hotel->price = $request->input('price');
+        $filename = $request->file('images')->getClientOriginalName();
+        $hotel->images = $filename;
+        $request->file('images')->move('images/Hotel', $filename);
+        
+        $hotel->save();
+
+        return back()->with('success', "Hotel added into database!");
+    }
+
+    public function add_location_index(){
+        if(session('user')->role == 'admin'){
+            return view('admin.location_add');
+        }else{
+            return redirect('home');
+        }
+    }
+
+    public function add_location(Request $request){
+        $request->validate([
+            'location' => 'required | unique:location',
+        ]);
+
+        $location = new Location();
+        $location->location = $request->input('location');
+
+        $query = $location->save();
+
+        if($query){
+            return back()->with('success', "Location have been successfuly added!");
+        }else{
+            return back();
+        }
+    }
+
+    public function add_carousel_index(Request $request){
+        if(session('user')->role == 'admin'){
+            $hotel = Hotel::all();
+            return view('admin.carousel_add', ['hotel' => $hotel]);
+        } else{
+            return redirect('home');
+        }
+
+        
+    }
+
+    public function add_carousel(Request $request){
+        $request->validate([
+            'id_hotel' => 'required',
+            'images' => 'required'
+        ]);
+        $image = new HotelImage();
+        $image->id_hotel = $request->input('id_hotel');
+        $filename = $request->file('images')->getClientOriginalName();
+        $image->carousel_images = $filename;
+        $request->file('images')->move('images/hotelCarousel', $filename);
+        
+        $image->save();
+
+        return back()->with('success', "Image added into database!");
     }
 }
